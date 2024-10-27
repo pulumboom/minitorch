@@ -204,8 +204,8 @@ class EQ(Function):
 
 class IsClose(Function):
     @staticmethod
-    def forward(ctx: Context, a: Tensor, b: Tensor) -> Tensor:
-        return a.f.is_close_zip(a, b)
+    def forward(ctx: Context, a: Tensor, c: Tensor) -> Tensor:
+        return a.f.is_close_zip(a, c)
 
 
 class Permute(Function):
