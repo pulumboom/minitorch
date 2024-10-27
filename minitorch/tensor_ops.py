@@ -264,8 +264,14 @@ def tensor_map(
         in_shape: Shape,
         in_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError('Need to implement for Task 2.3')
+        out_index = out_shape.copy()
+        in_index = in_shape.copy()
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, in_shape, in_index)
+            data = in_storage[index_to_position(in_index, in_strides)]
+            map_data = fn(data)
+            out[index_to_position(out_index, out_strides)] = map_data
 
     return _map
 
@@ -309,8 +315,17 @@ def tensor_zip(
         b_shape: Shape,
         b_strides: Strides,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError('Need to implement for Task 2.3')
+        out_index = out_shape.copy()
+        a_index = a_shape.copy()
+        b_index = b_shape.copy()
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            broadcast_index(out_index, out_shape, a_shape, a_index)
+            broadcast_index(out_index, out_shape, b_shape, b_index)
+            a_data = a_storage[index_to_position(a_index, a_strides)]
+            b_data = b_storage[index_to_position(b_index, b_strides)]
+            zip_data = fn(a_data, b_data)
+            out[index_to_position(out_index, out_strides)] = zip_data
 
     return _zip
 
@@ -340,8 +355,15 @@ def tensor_reduce(
         a_strides: Strides,
         reduce_dim: int,
     ) -> None:
-        # TODO: Implement for Task 2.3.
-        raise NotImplementedError('Need to implement for Task 2.3')
+        out_index = out_shape.copy()
+        for i in range(len(out)):
+            to_index(i, out_shape, out_index)
+            o_index = index_to_position(out_index, out_strides)
+            for j in range(a_shape[reduce_dim]):
+                a_index = out_index.copy()
+                a_index[reduce_dim] = j
+                pos_a = index_to_position(a_index, a_strides)
+                out[o_index] = fn(a_storage[pos_a], out[o_index])
 
     return _reduce
 

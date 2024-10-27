@@ -22,8 +22,11 @@ def central_difference(f: Any, *vals: Any, arg: int = 0, epsilon: float = 1e-6) 
     Returns:
         An approximation of $f'_i(x_0, \ldots, x_{n-1})$
     """
-    # TODO: Implement for Task 1.1.
-    raise NotImplementedError('Need to implement for Task 1.1')
+    f_x = f(*vals)
+    vals = list(vals)
+    vals[arg] += epsilon
+    f_xe = f(*vals)
+    return (f_xe - f_x) / epsilon
 
 
 variable_count = 1
@@ -61,8 +64,22 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     Returns:
         Non-constant Variables in topological order starting from the right.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    order: List[Variable] = []
+    seen = set()
+
+    def visit(var: Variable) -> None:
+        if var.unique_id in seen or var.is_constant():
+            return
+        if not var.is_leaf():
+            for m in var.parents:
+                if not m.is_constant():
+                    visit(m)
+
+        seen.add(var.unique_id)
+        order.insert(0, var)
+
+    visit(variable)
+    return order
 
 
 def backpropagate(variable: Variable, deriv: Any) -> None:
@@ -76,8 +93,23 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
 
     No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
     """
-    # TODO: Implement for Task 1.4.
-    raise NotImplementedError('Need to implement for Task 1.4')
+    result = topological_sort(variable)
+    node2driv = {}
+    node2driv[variable.unique_id] = deriv
+    for n in result:
+        if n.is_leaf():
+            continue
+        if n.unique_id in node2driv.keys():
+            deriv = node2driv[n.unique_id]
+        deriv_tmp = n.chain_rule(deriv)
+        for key, item in deriv_tmp:
+            if key.is_leaf():
+                key.accumulate_derivative(item)
+                continue
+            if key.unique_id in node2driv.keys():
+                node2driv[key.unique_id] += item
+            else:
+                node2driv[key.unique_id] = item
 
 
 @dataclass
